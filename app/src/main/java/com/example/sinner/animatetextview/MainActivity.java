@@ -21,5 +21,9 @@ public class MainActivity extends AppCompatActivity {
                 ((AnimateTextView) findViewById(R.id.tv_text)).setMaxNumber(num, false, 2);
             }
         }, 500);
+
+        ((com.example.sinner.animatetextview.view.AnimateTextView)findViewById(R.id.animateTextView1)).StartCount();
+        ((com.example.sinner.animatetextview.view.AnimateTextView)findViewById(R.id.animateTextView2)).StartCount();
+        ((com.example.sinner.animatetextview.view.AnimateTextView)findViewById(R.id.animateTextView3)).StartCount();
     }
 }
