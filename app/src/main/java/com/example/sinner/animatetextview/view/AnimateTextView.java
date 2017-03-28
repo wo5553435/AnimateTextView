@@ -32,6 +32,7 @@ import java.util.List;
  * Created by win7 on 2017-03-25.
  */
 public class AnimateTextView extends View {
+
     private int mTextSize = 16;
     private int mTextColor = 0;
     private int mStartCount = 0;
