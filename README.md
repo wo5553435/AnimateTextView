@@ -1,7 +1,7 @@
 # AnimateTextView
 just a textview with animation of growup
 
-First :I'm no good at English..so let me complete this README  with my first language .I will  spend some time to introduct this view
+First :I'm not good at English..so let me complete this README  with my first language .I will  spend some time to introduct this view
 
 
 这是我业余时间完成的一个自定义控件 在这个例子中 你可以看到一个有动画过长的view，他能干以下几个小动画
