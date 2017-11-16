@@ -22,8 +22,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }, 500);
 
-        ((com.example.sinner.animatetextview.view.AnimateTextView)findViewById(R.id.animateTextView1)).StartCount();
-        ((com.example.sinner.animatetextview.view.AnimateTextView)findViewById(R.id.animateTextView2)).StartCount();
-        ((com.example.sinner.animatetextview.view.AnimateTextView)findViewById(R.id.animateTextView3)).StartCount();
+        ((com.chou.view.AnimateTextView)findViewById(R.id.animateTextView1)).StartCount();
+        ((com.chou.view.AnimateTextView)findViewById(R.id.animateTextView2)).StartCount();
+        ((com.chou.view.AnimateTextView)findViewById(R.id.animateTextView3)).StartCount();
     }
 }
