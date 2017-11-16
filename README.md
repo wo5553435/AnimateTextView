@@ -10,3 +10,9 @@ First :I'm not good at English..so let me complete this README  with my first la
 
 it’s a custom textview with some special and high demand’s animation, just like self-propagation's effect  please try it yourself and change
 the mode of aninamtion type ----> set "mode" in xml :)
+
+make sure your  gradle's file in project include jitpack  like this
+  maven { url 'https://jitpack.io' }
+
+so you can use it with
+compile 'com.github.wo5553435:AnimateTextView:1.0'
