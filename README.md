@@ -13,7 +13,7 @@ it’s a custom textview with some special and high demand’s animation, just l
 the mode of aninamtion type ----> set "mode" in xml :)<br>
 
 make sure your  gradle's file in project include jitpack  like this<br>
-        maven { url 'https://jitpack.io' }<br>
+  maven { url 'https://jitpack.io' }<br>
 
 so you can use it with<br>
-        compile 'com.github.wo5553435:AnimateTextView:1.0'<br>
+  compile 'com.github.wo5553435:AnimateTextView:1.0'<br>
