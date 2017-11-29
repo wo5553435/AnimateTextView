@@ -8,6 +8,7 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
+
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.sinner.animatetextview.MainActivity">
 
@@ -26,32 +27,32 @@
         android:layout_marginBottom="84dp" />
 
     <com.chou.view.AnimateTextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="60dp"
+        app:maxwidthmode="end"
         android:id="@+id/animateTextView1"
         app:textSize="20"
         app:start="0"
         app:duration="1000"
         app:end="100"
+
         app:mode="animate"
-        app:textColor="@color/colorAccent"
-        android:background="#ECECEC"
+        android:background="#C52356"
         />
 
     <com.chou.view.AnimateTextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:id="@+id/animateTextView2"
         app:textSize="40"
         app:textColor="@color/colorPrimary"
         app:start="0"
-        app:duration="5000"
-        app:end="1234"
+        app:duration="10000"
+        app:end="21234"
         app:mode="cashout"
+        app:maxwidthmode="wrap"
         android:background="#ECECEC"
-        android:layout_below="@+id/animateTextView1"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="12dp" />
+        android:layout_marginTop="100dp" />
 
     <com.chou.view.AnimateTextView
         android:layout_width="100dp"
@@ -62,6 +63,7 @@
         app:duration="1000"
         app:end="90"
         app:mode="downcount"
+
         app:textColor="@color/colorAccent"
         app:textonleft="还有"
         app:textonright="秒"
@@ -70,12 +72,15 @@
         android:layout_alignParentStart="true"
         android:layout_marginTop="20dp" />
 
-    <com.example.sinner.animatetextview.AnimateTextView
+    <com.chou.view.AnimateTextView
         android:id="@+id/tv_text"
-        android:layout_width="200dp"
+        android:layout_width="100dp"
         android:layout_height="40dp"
         android:text="0"
+        app:start="0"
+        app:duration="1000"
         android:onClick="test"
+        app:mode="animate"
         android:textSize="32sp"
         android:layout_alignBottom="@+id/animateTextView3"
         android:layout_alignParentEnd="true"

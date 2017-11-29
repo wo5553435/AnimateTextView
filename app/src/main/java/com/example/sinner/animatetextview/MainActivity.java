@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import com.chou.view.AnimateTextView;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -18,7 +20,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 int num= (int) (Math.random()*1000*Math.random());
-                ((AnimateTextView) findViewById(R.id.tv_text)).setMaxNumber(num, false, 2);
+                AnimateTextView av=((com.chou.view.AnimateTextView)findViewById(R.id.animateTextView1));
+                av.setEndCount(num);
+                av.StartCount();
+              //  ((com.chou.view.AnimateTextView) findViewById(R.id.tv_text)).setMa(num, false, 2);
             }
         }, 500);
 

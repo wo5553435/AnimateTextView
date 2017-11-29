@@ -5,7 +5,9 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -32,7 +34,6 @@ import java.util.List;
  * Created by win7 on 2017-03-25.
  */
 public class AnimateTextView extends View {
-
     private int mTextSize = 16;
     private int mTextColor = 0;
     private int mStartCount = 0;
@@ -47,9 +48,11 @@ public class AnimateTextView extends View {
     private String textleft;
     private String textright;
     private List<Integer> nums;
+    private int maxwidthMode = 2;//宽度为wrapcontent展示最大宽度模式 1.以最大宽度 2自适应
     ValueAnimator va;
     OnResultListener callback;
     int lenght;
+    private boolean isSureSize = true;
 
     public AnimateTextView(Context context) {
         super(context);
@@ -70,6 +73,12 @@ public class AnimateTextView extends View {
     }
 
 
+    public void setEndCount(int count) {
+        this.mEndCount = count;
+        initInputTextContentSize();
+        requestLayout();
+    }
+
     public void SetResultListener(OnResultListener callback) {
         this.callback = callback;
     }
@@ -78,32 +87,115 @@ public class AnimateTextView extends View {
         if (attrs != null) {
             TypedArray a = mContext.obtainStyledAttributes(attrs, R.styleable.AnimateTextView);
             mTextSize = a.getInteger(R.styleable.AnimateTextView_textSize, 16);
-            mTextColor = a.getColor(R.styleable.AnimateTextView_textColor, getResources().getColor(android.R.color.black));
+            mTextColor = a.getColor(R.styleable.AnimateTextView_textColor, Color.BLACK);
             mStartCount = a.getInteger(R.styleable.AnimateTextView_start, 0);
             mEndCount = a.getInteger(R.styleable.AnimateTextView_end, 0);
             duration = a.getInteger(R.styleable.AnimateTextView_duration, 1000);
             mCurrentMode = a.getInt(R.styleable.AnimateTextView_mode, 3);
             textleft = a.getString(R.styleable.AnimateTextView_textonleft);
             textright = a.getString(R.styleable.AnimateTextView_textonright);
+            maxwidthMode = a.getInt(R.styleable.AnimateTextView_maxwidthmode, 2);
             stringBuffer = new StringBuffer();
             nb = new StringBuffer();
             a.recycle();
         }
+
+        mBound = new Rect();
+
+        textPaint = new Paint();
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        textPaint.setAntiAlias(true);
+        text = "0";
+        textPaint.setTextSize(mTextSize);
+        textPaint.setColor(mTextColor);
+        textPaint.setAntiAlias(true);
+        textPaint.setStyle(Paint.Style.FILL);
         //这个位置有点尴尬,直接自定义出来的好像这段代码提前判断了
-        if (mEndCount <= mStartCount) {
+        if (mEndCount < mStartCount) {
             throw new RuntimeException("请确保start和end的值在正常可用范围内");
         }
+        initInputTextContentSize();
     }
+
+    //只针对倒数和animate状态的差值器
+    public void setInterpolator(Interpolator in) {
+        this.interpolator = in;
+    }
+
+    Paint textPaint;
+    String text = "0";
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        Log.e("onmeasure", "---");
         //获取测量模式
+        measureText();
         int measureWidth = measureWidth(widthMeasureSpec);
         int measureHeight = measureHeight(heightMeasureSpec);
         // 设置自定义的控件MyViewGroup的大小
         setMeasuredDimension(measureWidth, measureHeight);
     }
 
+    private void initInputTextContentSize() {
+        mBound.setEmpty();
+        switch (mCurrentMode) {
+            case MODE_ANIMATE:
+            case MODE_DOWNCOUNT:
+                if ((textleft == null && textright == null)) {
+                    textPaint.getTextBounds(String.valueOf(mEndCount), 0, String.valueOf(mEndCount).length(), mBound);
+                } else {
+                    stringBuffer.setLength(0);
+                    if (textleft != null) stringBuffer.append(textleft);
+                    stringBuffer.append(String.valueOf(mEndCount));
+                    if (textright != null) stringBuffer.append(textright);
+                    textPaint.getTextBounds(stringBuffer.toString(), 0, stringBuffer.toString().length(), mBound);
+                }
+                break;
+            case MODE_CASHOUT:
+                textPaint.getTextBounds(String.valueOf(mEndCount), 0, String.valueOf(mEndCount).length(), mBound);
+                break;
+        }
+        Log.e("recf with:" + mBound.width(), "recf height" + mBound.height());
+        endtextwidth = mBound.width();
+    }
+
+    private float textwidth = 0f;
+    private float textheight = 0f;
+    private float endtextwidth = 0f;
+    private int textoffset = 20;
+
+    //    private int currentmeasuremode=-1;//当前的宽度计量模式 -1 完全体  0 wrap 1 match
+    private void measureText() {
+        mBound.setEmpty();
+        switch (mCurrentMode) {
+            case MODE_ANIMATE:
+            case MODE_DOWNCOUNT:
+                if ("".equals(str_num)) {
+                    inputText = text;
+                    textPaint.getTextBounds(text, 0, 1, mBound);
+                } else {
+                    if ((textleft == null && textright == null)) {
+                        textPaint.getTextBounds(str_num, 0, str_num.length(), mBound);
+                        inputText = str_num;
+                    } else {
+                        stringBuffer.setLength(0);
+                        if (textleft != null) stringBuffer.append(textleft);
+                        stringBuffer.append(str_num);
+                        if (textright != null) stringBuffer.append(textright);
+                        textPaint.getTextBounds(stringBuffer.toString(), 0, stringBuffer.toString().length(), mBound);
+                        inputText = stringBuffer.toString();
+                    }
+                }
+                break;
+            case MODE_CASHOUT:
+                textPaint.getTextBounds(nb.toString(), 0, nb.toString().length(), mBound);
+                inputText = nb.toString();
+                break;
+        }
+        Log.e("recf with:" + mBound.width(), "recf height" + mBound.height());
+        textwidth = mBound.width();
+        textheight = mBound.height();
+    }
 
     private int measureWidth(int pWidthMeasureSpec) {
         int result = 0;
@@ -130,9 +222,19 @@ public class AnimateTextView extends View {
              * MeasureSpec.UNSPECIFIED是未指定尺寸，这种情况不多，一般都是父控件是AdapterView，
              * 通过measure方法传入的模式。
              */
-            case MeasureSpec.AT_MOST:
+            case MeasureSpec.AT_MOST://自适应下的宽度判断
+                if (maxwidthMode == 1)
+                    result = (int)endtextwidth +textoffset;
+                else {
+                    isSureSize = false;//只要进过一次自适应 就当做是自适应
+                    result = (int) textwidth + textoffset;
+                }
+                break;
             case MeasureSpec.EXACTLY:
                 result = widthSize;
+                break;
+            case MeasureSpec.UNSPECIFIED:
+                Log.e("父view也是wrapcontent", "--");
                 break;
         }
         return result;
@@ -140,12 +242,13 @@ public class AnimateTextView extends View {
 
     private int measureHeight(int pHeightMeasureSpec) {
         int result = 0;
-
         int heightMode = MeasureSpec.getMode(pHeightMeasureSpec);
         int heightSize = MeasureSpec.getSize(pHeightMeasureSpec);
 
         switch (heightMode) {
             case MeasureSpec.AT_MOST:
+                result = (int) textheight + textoffset / 2;//偏移量我写死了
+                break;
             case MeasureSpec.EXACTLY:
                 result = heightSize;
                 break;
@@ -166,6 +269,7 @@ public class AnimateTextView extends View {
     }
 
     public void StartCount() {
+
         if (va != null && va.isRunning()) va.end();
         switch (mCurrentMode) {
             case MODE_ANIMATE://单纯动画
@@ -176,7 +280,9 @@ public class AnimateTextView extends View {
                     @Override
                     public void onAnimationUpdate(ValueAnimator valueAnimator) {
                         str_num = String.valueOf((int) valueAnimator.getAnimatedValue());
-                        postInvalidate();
+                        if (isSureSize) postInvalidate();
+                        else
+                            requestLayout();
                     }
                 });
                 va.addListener(new Animator.AnimatorListener() {
@@ -211,7 +317,6 @@ public class AnimateTextView extends View {
                 va.addListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animator) {
-                        Log.e("onAnimationStart", "--");
                         if (mCurrentValue == -1)
                             mCurrentValue = mEndCount;
                         if (callback != null) callback.OnStart();
@@ -219,22 +324,21 @@ public class AnimateTextView extends View {
 
                     @Override
                     public void onAnimationEnd(Animator animator) {
-                        Log.e("onAnimationEnd", "---");
                         postInvalidate();
                         if (callback != null) callback.OnEnd();
                     }
 
                     @Override
                     public void onAnimationCancel(Animator animator) {
-                        Log.e("onAnimationCancel", "--");
                     }
 
                     @Override
                     public void onAnimationRepeat(Animator animator) {
-                        Log.e("onAnimationRepeat", "--");
                         mCurrentValue--;
                         str_num = "" + mCurrentValue;
-                        postInvalidate();
+                        if (isSureSize) postInvalidate();
+                        else
+                            requestLayout();
                     }
                 });
                 break;
@@ -258,6 +362,7 @@ public class AnimateTextView extends View {
     }
 
     Interpolator in = new DecelerateInterpolator(1);
+    Interpolator interpolator;
 
     /**
      * 计算当前值
@@ -268,10 +373,10 @@ public class AnimateTextView extends View {
         int index = animatedValue / 100;
         nb.setLength(0);
         if (index < 1) {//全员加速状态；
-            int part=100/nums.size();
+            int part = 100 / nums.size();
 
-            for (int i = 0; i < ((animatedValue/part)+1); i++) {//分批加入每一位数字
-                nb.append("" + (int)( 10f*Math.random()));
+            for (int i = 0; i < ((animatedValue / part) + 1); i++) {//分批加入每一位数字
+                nb.append("" + (int) (10f * Math.random()));
             }
         } else {//
             for (int i = 0; i < nums.size(); i++) {
@@ -280,14 +385,16 @@ public class AnimateTextView extends View {
                 } else if (index - 1 == i) {//这位数字开始缓
                     int count = animatedValue % 100;
                     int x = (int) (Math.abs(in.getInterpolation(0.01f * count)) * 10);
-                    //  Logs.e("--count:"+count,"--x"+x);
+                    //  Log.e("--count:"+count,"--x"+x);
                     nb.append((nums.get(i) + x) % 10);
                 } else {//高位继续动画
                     nb.append("" + ((nums.get(i) + animatedValue % 10) % 10));
                 }
             }
         }
-        postInvalidate();
+        if (isSureSize) postInvalidate();
+        else
+            requestLayout();
     }
 
     /**
@@ -295,48 +402,24 @@ public class AnimateTextView extends View {
      */
     private void SetValue(int Count) {
         nums = new ArrayList<>();
-
         String count = String.valueOf(Count);
         for (int i = 0; i < count.length(); i++) {
             nums.add(Integer.parseInt("" + count.charAt(i)));
         }
     }
 
+    private Rect mBound;
+    private float startwidth = 0;
+    private float startheight = 0;
+    private String inputText = "";//将要书写的文字
+
     @Override
     protected void onDraw(Canvas canvas) {
-        //绘制文本
-        Paint textPaint = new Paint();
-        textPaint.setTextAlign(Paint.Align.CENTER);
-        textPaint.setAntiAlias(true);
-        String text = "0";
-        textPaint.setTextSize(mTextSize);
-        float textLength = textPaint.measureText(text);
-        textPaint.setColor(mTextColor);
-
-        switch (mCurrentMode) {
-            case MODE_ANIMATE:
-            case MODE_DOWNCOUNT:
-
-
-                if ("".equals(str_num)) {
-                    canvas.drawText(text, getWidth() / 2/*- AndroidUtil.px2dip(getContext(),mCenterTextSize)*(text.length()/2.0f+offset)*/, getHeight() / 2, textPaint);
-                } else {
-                    if ((textleft == null && textright == null)) {
-
-                        canvas.drawText(str_num, getWidth() / 2/*- AndroidUtil.px2dip(getContext(),mCenterTextSize)*text.length()/2.0f*/, getHeight() / 2, textPaint);
-                    } else {
-                        stringBuffer.setLength(0);
-                        if (textleft != null) stringBuffer.append(textleft);
-                        stringBuffer.append(str_num);
-                        if (textright != null) stringBuffer.append(textright);
-                        canvas.drawText(stringBuffer.toString(), getWidth() / 2/*- AndroidUtil.px2dip(getContext(),mCenterTextSize)*text.length()/2.0f*/, getHeight() / 2, textPaint);
-                    }
-                }
-                break;
-            case MODE_CASHOUT:
-                canvas.drawText(nb.toString(), getWidth() / 2/*- AndroidUtil.px2dip(getContext(),mCenterTextSize)*text.length()/2.0f*/, getHeight() / 2, textPaint);
-                break;
-        }
+        measureText();//根据当前模式确定需要输入的内容
+        Log.e("onDraw" + getWidth(), "start width" + startwidth);
+        startwidth = (getWidth() / 2)/*- (mBound.width() / 2)*/;
+        startheight = getHeight() / 2 + (mBound.height() / 2);
+        canvas.drawText(inputText, startwidth, startheight, textPaint);
     }
 
 
