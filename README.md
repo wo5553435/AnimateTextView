@@ -16,4 +16,4 @@ make sure your  gradle's file in project include jitpack  like this<br>
         `maven { url 'https://jitpack.io' }`<br>
 
 so you can use it with<br>
-        `compile 'com.github.wo5553435:AnimateTextView:1.0'`<br>
+        `compile 'com.github.wo5553435:AnimateTextView:1.1'`<br>
